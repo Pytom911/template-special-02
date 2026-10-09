@@ -117,9 +117,14 @@ ${isNaN(days)?'':`<p class="hand text-3xl mt-5 bg-[#ffc9d4] inline-block px-4 ro
 <button id="btnRestart" type="button" class="btn mt-6">Baca lagi dari awal</button></div></section>`;
 app.innerHTML=h;
 
-/* --- page-turn reveal --- */
-const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.1});
-document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+/* --- page-turn reveal: slow book open 1.9s --- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}),{threshold:.14, rootMargin:'0px 0px -12% 0px'});
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  el.style.transitionDelay=(i%3)*0.12+'s';
+  io.observe(el);
+});
 
 /* --- loader --- */
 const ld=document.getElementById('ld');
@@ -295,7 +300,7 @@ document.getElementById('btnRestart')?.addEventListener('click', ()=>{
   if(gboxEl){ gboxEl.textContent='🎁'; gboxEl.onclick=openGift; gboxEl.classList.remove('shake'); }
   const gmsg2El=document.getElementById('gmsg2'); if(gmsg2El) gmsg2El.textContent='';
 
-  document.querySelectorAll('.reveal').forEach(el=>{ el.classList.remove('in'); io.observe(el); });
+  document.querySelectorAll('.reveal').forEach(el=>{ el.classList.remove('in'); void el.offsetWidth; io.observe(el); });
   window.scrollTo({top:0, behavior:'smooth'});
   confetti(80);
 });
